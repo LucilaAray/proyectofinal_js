@@ -1,43 +1,48 @@
-//Funcion para convertir usd en otras monedas.
+// Funcion -con objeto y array- para convertir usd en otras monedas
 function conversor(tipoDeCambio, cantidadUsd) {
-  const precioDolar = 470;
-  tipoDeCambio = tipoDeCambio.toLowerCase();
-
-  // Retorna a null si la cantidad no es válida.
+  const tipoDeCambioValido = [
+    { moneda: "peso argentino", valor: 1 },
+    { moneda: "euro", valor: 0.82 },
+    { moneda: "libra", valor: 0.80 }
+  ];
+// Retorna a null si la cantidad no es válida.
   if (isNaN(cantidadUsd)) {
-    return null; 
+    return null;
+  }
+//Metodo que recorre el array tipoDeCambioValido
+  const tipoDeCambioEncontrado = tipoDeCambioValido.find(tipo => tipo.moneda.toLowerCase() === tipoDeCambio.toLowerCase());
+
+// Retorna null si el tipo de cambio no es válido
+  if (!tipoDeCambioEncontrado) {
+    return null;
   }
 
-  let tipoDeCambioValido = false;
-  let factorConversion = 0;
+  const conversion = tipoDeCambioEncontrado.valor;
 
-//Validacion de cambio seleccionado
-  if (tipoDeCambio === "peso argentino") {
-    tipoDeCambioValido = true;
-    factorConversion = 1;
-  } else if (tipoDeCambio === "euro") {
-    tipoDeCambioValido = true;
-    factorConversion = 0.82;
-  } else if (tipoDeCambio === "libra") {
-    tipoDeCambioValido = true;
-    factorConversion = 0.80;
-  }
-  // Retorna null si el tipo de cambio no es válido
-  if (!tipoDeCambioValido) {
-    return null; 
+  const cantidadLocal = cantidadUsd * 470 * conversion;
+  return cantidadLocal;
+}
+//funcion para solicitar datos al usuario, cantidad de usd a convertir y tipo de moneda local
+function solicitarEntrada(mensaje) {
+  let entrada = prompt(mensaje).trim();
+
+  if (!entrada) {
+    alert("No se ingresó ningún valor");
+    return solicitarEntrada(mensaje);
   }
 
-  const cantidadArs = cantidadUsd * precioDolar * factorConversion;
-  return cantidadArs;
+  return entrada;
 }
 
-let cantidadUsd = parseFloat(prompt("Ingrese cantidad usd a convertir en moneda local:"));
-let tipoDeCambio = prompt("Escoja la moneda local PESO ARGENTINO, EURO O LIBRA");
+const cantidadUsd = parseFloat(solicitarEntrada("Ingrese cantidad USD a convertir a moneda local:"));
+const tipoDeCambio = solicitarEntrada("Escoja la moneda local: PESO ARGENTINO, EURO o LIBRA");
 
+//obtener la cantidad equivalente a la moneda local
 const cantidadLocal = conversor(tipoDeCambio, cantidadUsd);
 
 if (cantidadLocal === null) {
-  alert("Cantidad ingresada o tipo de cambio no válido");
+  alert("La cantidad ingresada o el tipo de cambio no son válidos");
 } else {
   alert("$" + cantidadUsd + " USD equivale a: " + cantidadLocal.toFixed(2) + " " + tipoDeCambio.toUpperCase());
 }
+
