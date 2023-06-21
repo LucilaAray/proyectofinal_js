@@ -1,3 +1,4 @@
+// 
 // Función que define el valor de monedas
 function conversor(tipoDeCambio, cantidadUsd) {
   const tipoDeCambioValido = [
@@ -5,46 +6,74 @@ function conversor(tipoDeCambio, cantidadUsd) {
     { moneda: "euro", valor: 0.82 },
     { moneda: "libra", valor: 0.80 }
   ];
-  // Retorna a null si la cantidad no es válida.
+
   if (isNaN(cantidadUsd)) {
     return null;
   }
-  // Método que recorre el array tipoDeCambioValido
+
   const tipoDeCambioEncontrado = tipoDeCambioValido.find(tipo => tipo.moneda.toLowerCase() === tipoDeCambio.toLowerCase());
 
-  // Retorna null si el tipo de cambio no es válido
   if (!tipoDeCambioEncontrado) {
     return null;
   }
   
   return convertirCantidad(cantidadUsd, tipoDeCambioEncontrado);
 }
+
 // Función para convertir la cantidad de USD a moneda local
 function convertirCantidad(cantidadUsd, tipoDeCambioEncontrado) {
   const conversion = tipoDeCambioEncontrado.valor;
   const cantidadLocal = cantidadUsd * 470 * conversion;
   return cantidadLocal;
 }
-// Función para solicitar datos al usuario, cantidad de USD a convertir y tipo de moneda local
-function solicitarEntrada(mensaje) {
-  let entrada = prompt(mensaje).trim();
-  if (!entrada) {
-    alert("No se ingresó ningún valor");
-    return solicitarEntrada(mensaje);
+
+// Función para mostrar el resultado en el HTML
+function mostrarResultado(cantidadUsd, cantidadLocal, tipoDeCambio) {
+  const resultadoDiv = document.getElementById("resultado");
+  resultadoDiv.textContent = `$${cantidadUsd} USD equivale a: ${cantidadLocal.toFixed(2)} ${tipoDeCambio.toUpperCase()}`;
+}
+
+// Función para guardar las selecciones del usuario en el almacenamiento local
+function guardarSeleccion(tipoDeCambio, cantidadUsd) {
+  const seleccion = { tipoDeCambio, cantidadUsd };
+  const seleccionJSON = JSON.stringify(seleccion);
+  localStorage.setItem("seleccionUsuario", seleccionJSON);
+}
+
+// Función para obtener las selecciones almacenadas del usuario
+function obtenerSeleccion() {
+  const seleccionJSON = localStorage.getItem("seleccionUsuario");
+  if (seleccionJSON) {
+    const seleccion = JSON.parse(seleccionJSON);
+    return seleccion;
   }
-  return entrada;
+  return null;
 }
 
 function solicitarDatos() {
-  const cantidadUsd = parseFloat(solicitarEntrada("Ingrese cantidad USD a convertir a moneda local:"));
-  const tipoDeCambio = solicitarEntrada("Escoja la moneda local: PESO ARGENTINO, EURO o LIBRA");
-  // Obtener la cantidad equivalente a la moneda local
-  const cantidadLocal = conversor(tipoDeCambio, cantidadUsd);
-  if (cantidadLocal === null) {
-    alert("La cantidad ingresada o el tipo de cambio no son válidos");
-  } else {
-    alert("$" + cantidadUsd + " USD equivale a: " + cantidadLocal.toFixed(2) + " " + tipoDeCambio.toUpperCase());
+  const cantidadUsdInput = document.getElementById("cantidad-usd");
+  const tipoDeCambioInput = document.getElementById("tipo-cambio");
+  const botonConvertir = document.getElementById("boton-convertir");
+
+  // Obtener selecciones almacenadas (si existen) y establecer los valores en los elementos del formulario
+  const seleccionGuardada = obtenerSeleccion();
+  if (seleccionGuardada) {
+    cantidadUsdInput.value = seleccionGuardada.cantidadUsd;
+    tipoDeCambioInput.value = seleccionGuardada.tipoDeCambio;
   }
+
+  botonConvertir.addEventListener("click", function() {
+    const cantidadUsd = parseFloat(cantidadUsdInput.value);
+    const tipoDeCambio = tipoDeCambioInput.value.toLowerCase();
+    const cantidadLocal = conversor(tipoDeCambio, cantidadUsd);
+    
+    if (cantidadLocal === null) {
+      alert("La cantidad ingresada o el tipo de cambio no son válidos");
+    } else {
+      mostrarResultado(cantidadUsd, cantidadLocal, tipoDeCambio);
+      guardarSeleccion(tipoDeCambio, cantidadUsd); // Guardar las selecciones del usuario en el almacenamiento local
+    }
+  });
 }
 
 solicitarDatos();
