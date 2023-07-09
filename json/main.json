@@ -1,0 +1,10 @@
+{
+    "conversor": {
+      "tipoDeCambioValido": [
+        { "moneda": "peso argentino", "valor": 1 },
+        { "moneda": "euro", "valor": 0.82 },
+        { "moneda": "libra", "valor": 0.80 }
+      ]
+    }
+  }
+  

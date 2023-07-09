@@ -1,22 +1,32 @@
-// 
+// Funcion para traer la data de las divisas de un json
+async function getData() {
+  try {
+    const response = await fetch("json/main.json");
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error al cargar el archivo JSON:", error);
+  }
+}
+
+
 // Función que define el valor de monedas
-function conversor(tipoDeCambio, cantidadUsd) {
-  const tipoDeCambioValido = [
-    { moneda: "peso argentino", valor: 1 },
-    { moneda: "euro", valor: 0.82 },
-    { moneda: "libra", valor: 0.80 }
-  ];
+async function conversor(tipoDeCambio, cantidadUsd) {
+  const data = await getData();
+  const tipoDeCambioValido = data.conversor.tipoDeCambioValido;
 
   if (isNaN(cantidadUsd)) {
     return null;
   }
 
-  const tipoDeCambioEncontrado = tipoDeCambioValido.find(tipo => tipo.moneda.toLowerCase() === tipoDeCambio.toLowerCase());
+  const tipoDeCambioEncontrado = tipoDeCambioValido.find(
+    (tipo) => tipo.moneda.toLowerCase() === tipoDeCambio.toLowerCase()
+  );
 
   if (!tipoDeCambioEncontrado) {
     return null;
   }
-  
+
   return convertirCantidad(cantidadUsd, tipoDeCambioEncontrado);
 }
 
@@ -30,7 +40,9 @@ function convertirCantidad(cantidadUsd, tipoDeCambioEncontrado) {
 // Función para mostrar el resultado en el HTML
 function mostrarResultado(cantidadUsd, cantidadLocal, tipoDeCambio) {
   const resultadoDiv = document.getElementById("resultado");
-  resultadoDiv.textContent = `$${cantidadUsd} USD equivale a: ${cantidadLocal.toFixed(2)} ${tipoDeCambio.toUpperCase()}`;
+  resultadoDiv.textContent = `$${cantidadUsd} USD equivale a: ${cantidadLocal.toFixed(
+    2
+  )} ${tipoDeCambio.toUpperCase()}`;
 }
 
 // Función para guardar las selecciones del usuario en el almacenamiento local
@@ -50,7 +62,7 @@ function obtenerSeleccion() {
   return null;
 }
 
-function solicitarDatos() {
+async function solicitarDatos() {
   const cantidadUsdInput = document.getElementById("cantidad-usd");
   const tipoDeCambioInput = document.getElementById("tipo-cambio");
   const botonConvertir = document.getElementById("boton-convertir");
@@ -62,16 +74,26 @@ function solicitarDatos() {
     tipoDeCambioInput.value = seleccionGuardada.tipoDeCambio;
   }
 
-  botonConvertir.addEventListener("click", function() {
+  botonConvertir.addEventListener("click", async function () {
     const cantidadUsd = parseFloat(cantidadUsdInput.value);
     const tipoDeCambio = tipoDeCambioInput.value.toLowerCase();
-    const cantidadLocal = conversor(tipoDeCambio, cantidadUsd);
-    
+    const cantidadLocal = await conversor(tipoDeCambio, cantidadUsd);
+
     if (cantidadLocal === null) {
-      alert("La cantidad ingresada o el tipo de cambio no son válidos");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "La cantidad ingresada o el tipo de cambio no son válidos",
+      });
     } else {
       mostrarResultado(cantidadUsd, cantidadLocal, tipoDeCambio);
       guardarSeleccion(tipoDeCambio, cantidadUsd); // Guardar las selecciones del usuario en el almacenamiento local
+
+      Swal.fire({
+        icon: "success",
+        title: "Éxito",
+        text: "La conversión se realizó correctamente",
+      });
     }
   });
 }

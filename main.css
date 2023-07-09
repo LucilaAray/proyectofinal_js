@@ -61,7 +61,7 @@ label{
 }
 
 .resultado{
-    color: black;
+        color: black;
         border: 0;
         font-size: 30px;
         text-align: right;
